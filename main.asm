@@ -42,16 +42,24 @@ main_loop:
 	.text
 	.retain
 	.retainrefs
+	.asmfunc
+DELAY_N	.set 40000
 DELAY:
-	mov.w #60000, R15
-delay_lp1:
-	dec.w R15
-	tst  R15
-	jz	delay_over
-	jmp delay_lp1
-delay_over:
+	mov.w #DELAY_N, r15
+$l0:
+	dec.w	r15
+	tst.w	r15
+	jnz $l0
 	ret
+	.endasmfunc
 
+;COM A ISR
+	.def COMA_ISR
+	.text
+	.retain
+	.retainrefs
+COMA_ISR:
+	reti
 ;-------------------------------------------------------------------------------
 ; Stack Pointer definition
 ;-------------------------------------------------------------------------------
@@ -61,6 +69,8 @@ delay_over:
 ;-------------------------------------------------------------------------------
 ; Interrupt Vectors
 ;-------------------------------------------------------------------------------
-            .sect   ".reset"                ; MSP430 RESET Vector
-            .short  RESET
-            
+ ; MSP430 RESET Vector
+	.intvec ".reset", RESET
+	.intvec ".int11", COMA_ISR
+
+            .end
